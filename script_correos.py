@@ -1,16 +1,17 @@
-
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
 import csv
+import os
 
 sender_email = 'juan.ponton@forotecnoloxico.net'  # Tu dirección de correo electrónico
 password = ''  # Tu contraseña de correo electrónico
 asunto = 'Selección Stand Foro Tecnolóxico de Emprego'  # Asunto del correo electrónico
-cc = 'foro@forotecnoloxico.net'  # Dirección de correo a poner en copia
+cc = ''  # Dirección de correo a poner en copia
+carpeta_adjuntos = 'adjuntos/'  # Ruta de la carpeta donde están los archivos
 
-
-def create_message(recipient_name, recipient_email):
+def create_message(recipient_name, recipient_email, file_path=None):
     message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = recipient_email
@@ -36,8 +37,14 @@ def create_message(recipient_name, recipient_email):
     body = MIMEText(contenido_completo, 'html')
     message.attach(body)
 
-    return message
+    # Adjuntar el archivo al mensaje si existe
+    if file_path and os.path.exists(file_path):
+        with open(file_path, 'rb') as file:
+            attachment = MIMEApplication(file.read(), Name=os.path.basename(file_path))
+            attachment['Content-Disposition'] = f'attachment; filename="{os.path.basename(file_path)}"'
+            message.attach(attachment)
 
+    return message
 
 def send_emails():
     # Configuración del servidor SMTP
@@ -57,7 +64,15 @@ def send_emails():
 
             print(f'Enviando correo a {recipient_name} ({recipient_email})')
 
-            message = create_message(recipient_name, recipient_email)
+            # Path para el archivo basado en el nombre del destinatario
+            file_path = os.path.join(carpeta_adjuntos, f'{recipient_email}.pdf')  # Cambiar la extensión según el tipo de archivo que estás adjuntando
+
+            ###ESCOGER UNA DE LAS SIGUIENTES OPCIONES###
+            
+            # Crear el mensaje sin adjunto
+            #message = create_message(recipient_name, recipient_email)
+            #Crear el mensaje con adjunto
+            #message = create_message(recipient_name, recipient_email, file_path)
 
             recipients = [recipient_email, cc]
 
@@ -68,7 +83,5 @@ def send_emails():
                 server.sendmail(sender_email, recipients, message.as_string())
 
             print(f'Correo enviado a {recipient_name} ({recipient_email})')
-
-
 
 send_emails()
