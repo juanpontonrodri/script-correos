@@ -1,5 +1,4 @@
-import schedule
-import time
+
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -49,26 +48,27 @@ def send_emails():
     with open('destinatarios.csv', newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
+            # Verificar si la línea está vacía
+            if len(row) == 0:
+                continue  # Saltar esta línea
+
             recipient_name = row[1]
             recipient_email = row[2]
+
             print(f'Enviando correo a {recipient_name} ({recipient_email})')
 
             message = create_message(recipient_name, recipient_email)
+
+            recipients = [recipient_email, cc]
 
             # Iniciar sesión en el servidor SMTP y enviar el correo
             with smtplib.SMTP(smtp_server, port) as server:
                 server.starttls()
                 server.login(sender_email, password)
-                server.sendmail(sender_email, recipient_email, message.as_string())
+                server.sendmail(sender_email, recipients, message.as_string())
 
             print(f'Correo enviado a {recipient_name} ({recipient_email})')
 
 
-# Programar la ejecución del envío de correos para el 8 de enero de 2023 a las 9:00 AM
-# schedule.every().day.at('09:00').do(send_emails)
-send_emails()
 
-# Ejecutar el programa indefinidamente para comprobar si se ha alcanzado la fecha programada
-# while True:
-#     schedule.run_pending()
-#     time.sleep(60)  # Esperar 60 segundos antes de volver a verificar la programación
+send_emails()
