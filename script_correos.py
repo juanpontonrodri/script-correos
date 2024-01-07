@@ -8,11 +8,14 @@ import csv
 sender_email = 'juan.ponton@forotecnoloxico.net'  # Tu dirección de correo electrónico
 password = ''  # Tu contraseña de correo electrónico
 asunto = 'Selección Stand Foro Tecnolóxico de Emprego'  # Asunto del correo electrónico
+cc = 'foro@forotecnoloxico.net'  # Dirección de correo a poner en copia
+
 
 def create_message(recipient_name, recipient_email):
     message = MIMEMultipart()
     message['From'] = sender_email
     message['To'] = recipient_email
+    message['Cc'] = cc
     message['Subject'] = asunto
 
     # Leer el contenido del archivo HTML para el cuerpo del correo
